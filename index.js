@@ -2,17 +2,16 @@ const fs = require("fs/promises");
 
 const cache = new Map();
 
-let result = {};
-let blockPosition = 0;
-let blockName = "";
-let blockData = "";
-
 let gameSave;
 let splitSave;
 
 const jsonResult = {};
 
 function handleBlockName(text) {
+    if(text === "{") {
+        return "SiiNunit";
+    }
+
     return text.replace(" {", "");
 }
 
@@ -26,7 +25,7 @@ function handleBlock(line, blockName = "Unknown") {
         if(text.endsWith("}")) return {ends: i, data, blockName};
 
         if(text.endsWith("{")) {
-            console.log("Entering block inside of block");
+            // console.log("Entering block inside of block");
             const res = handleBlock(i + 1, handleBlockName(text));
 
             // console.log(res);
@@ -60,7 +59,7 @@ async function main() {
         const line = splitSave[i].trim();
         
         if(line.endsWith("{")) {
-            console.log("Entering block");
+            // console.log("Entering block");
             const res = handleBlock(i + 1, handleBlockName(line));
 
             jsonResult[res.blockName] = res.data;
@@ -70,46 +69,6 @@ async function main() {
     }
 
     await fs.writeFile("game.json", JSON.stringify(jsonResult, null, 4));
-    // for (let i in splitSave) {
-    //     const line = splitSave[i].trim();
-
-    //     if(line.endsWith("{")) {
-    //         blockName = line.replace("{", "").trim();
-    //         blockPosition++;
-    //     }else if(line.endsWith("}")) {
-    //         blockName = "";
-    //         blockPosition--;
-    //     }
-
-        
-
-    //     blockData+= line;
-
-    //     console.log(result);
-    // }
-
-    // let isInsideBlock = false;
-    // let currentBlock = "";
-
-    // let result = {};
-
-    // for (let i in splitSave) {
-    //     const line = splitSave[i].trim();
-
-    //     if(line.includes("{")) {
-    //         isInsideBlock = true;
-    //         console.log("Moving into block");
-    //     }else if(line.includes("}")) {
-    //         isInsideBlock = false;
-    //         console.log("Moving out of block");
-    //     }
-
-    //     if(isInsideBlock) {currentBlock += line + "\n";}
-
-    //     console.log(currentBlock);
-    // }
-
-    // console.log(result);
 }
 
 main();
